@@ -36,6 +36,9 @@ public class MyGhosts extends Controller<EnumMap<GHOST,MOVE>>
 	{	
 		myMoves.clear();
 		for(GHOST ghosts : GHOST.values()){
+			State s = new State(game, ghosts);
+			MOVE move = getMove(s);
+			myMoves.put(ghosts, move);
 		}
 		return myMoves;
 	}

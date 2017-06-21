@@ -41,8 +41,10 @@ public class GeneticAlgorithm {
 	}
 	
 	private void inicializarPoblacion(){
-		for(int i = 0; i < numeroDeIndividuos; i++)
+		for(int i = 0; i < numeroDeIndividuos; i++){
 			poblacion.get(i).setAfinidad(entrenar(new StarterPacMan(), new MyGhosts(poblacion.get(i).getQ()), 100));
+			//poblacion.get(i).setAfinidad(entrenar(new StarterPacMan(), new MyGhosts(poblacion.get(i).getQ()), 10));
+		}
 		Collections.sort(poblacion);
 		for(int i = 0; i < numeroDeIndividuos; i++)
 			System.out.println(poblacion.get(i).toString() + poblacion.get(i).getAfinidad());
