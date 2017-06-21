@@ -49,20 +49,24 @@ public class GeneticAlgorithm {
 	
 	public void generarDescendencia(){
 		ArrayList<Individuo>descendientes = new ArrayList<Individuo>();
+		mutacion(descendientes);
 		// Sacamos 5 descendientes a través del cruce aritmético
 		cruceAritmetico(descendientes);
+		poblacion.clear();	
 		for(int i = 0; i < descendientes.size(); i++)
-			System.out.println(descendientes.get(i).toString() + descendientes.get(i).getAfinidad());
+			System.out.println(descendientes.get(i).toString() + descendientes.get(i).getAfinidad());	
+		poblacion = descendientes;
+		descendientes.clear();
 	}
 	
 	private void cruceAritmetico(ArrayList<Individuo> descendientes){
 		// Por cada dos se combinan
-		for(int i = 0; i < numeroDeIndividuos/3; i++){
+		for(int i = 0; i < 4; i++){
 			calcularCruceAritmetico(descendientes, poblacion.get(0),poblacion.get(1),0.4);
+			// Vamos liberando memoria
 			poblacion.remove(0);
 			poblacion.remove(0);
-		}
-		
+		}	
 	}
 	
 	private void calcularCruceAritmetico(ArrayList<Individuo>descendientes, Individuo progenitor, Individuo progenitor1, double r){
@@ -79,13 +83,29 @@ public class GeneticAlgorithm {
 		descendientes.add(new Individuo(genes1[0], genes1[1], genes1[2], genes1[3]));
 	}
 	
+	private void mutacion(ArrayList<Individuo>descendientes){
+		for(int i = 0; i < 2; i++){
+			
+			int random = (int) (Math.random() * numeroDeIndividuos);
+			double [] genotipo = poblacion.get(random).getGenotipo();
+			int genomaACambiar = (int) (Math.random() * 4);
+			System.out.println("Dentro de la mutacion numero: " + i + " individuo a cambiar: " + random + " gen a cambiar: " + genomaACambiar);
+			if(genomaACambiar == 0)
+				genotipo[0] = generarValorQ(20);
+			else
+				genotipo[genomaACambiar] = Math.random();
+			descendientes.add(new Individuo(genotipo[0],genotipo[1],genotipo[2],genotipo[3]));
+		}
+	}
+	
 	private int generarValorQ(int max){
 		int random = (int) (Math.random() * max);
 		random -= max/2;
 		return random;
 	}
 	
-	 public double entrenar(Controller<MOVE> pacManController,Controller<EnumMap<GHOST,MOVE>> ghostController,int trials)
+
+	public double entrenar(Controller<MOVE> pacManController,Controller<EnumMap<GHOST,MOVE>> ghostController,int trials)
 	    {
 	    	double avgScore=0;
 	    	
