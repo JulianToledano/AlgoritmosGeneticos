@@ -5,25 +5,25 @@ import pacman.game.Game;
 
 public class Individuo implements Comparable<Individuo>{
 	private Qlearning q;
-	private double value;
-	private double eps;
-	private double alpha;
-	private double gamma;
+	private double [] genotipo;
 	private Double afinidad;
 	
-	public Individuo(Game game, double value, double eps, double alpha, double gamma){
-		this.value = value;
-		this.eps = eps;
-		this.alpha = alpha;
-		this.gamma = gamma;
-		this.q = new Qlearning(game, value, eps, alpha, gamma);
+	public Individuo( double value, double eps, double alpha, double gamma){
+		genotipo = new double[4];
+		genotipo[0] = value;
+		genotipo[1] = eps;
+		genotipo[2] = alpha;
+		genotipo[3] = gamma;
+		Game game = new Game(0);
+		this.q = new Qlearning(game, genotipo[0], genotipo[1], genotipo[2], genotipo[3]);
 		this.afinidad = 0.0;
 	}
 	
 	public Qlearning getQ(){return q;}
 	public double getAfinidad(){return afinidad;}
 	public void setAfinidad(double afinidad){this.afinidad = afinidad;}
-	public String toString(){return value + ";" + eps + ";" + alpha + ";" + gamma + ";";}
+	public double[] getGenotipo(){return genotipo;}
+	public String toString(){return genotipo[0] + ";" + genotipo[1] + ";" + genotipo[2] + ";" + genotipo[3] + ";";}
 
 	@Override
 	public int compareTo(Individuo individuo) {

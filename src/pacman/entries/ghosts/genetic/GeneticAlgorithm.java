@@ -18,23 +18,21 @@ import pacman.game.Constants.MOVE;
 public class GeneticAlgorithm {
 	private ArrayList <Individuo> poblacion;
 	private int numeroDeIndividuos;
-	private double []genotipo;
 	
 	public GeneticAlgorithm(Game game, int numeroDeIndividuos){
 		this.poblacion = new ArrayList<Individuo>();
 		this.numeroDeIndividuos = numeroDeIndividuos;
-		genotipo = new double[4];
-		crearPoblacion(numeroDeIndividuos, game);
+		crearPoblacion(numeroDeIndividuos);
 	}
 	
 	
-	private void crearPoblacion(int numeroDeIndividuos, Game game){
+	private void crearPoblacion(int numeroDeIndividuos){
 		for(int i = 0; i < numeroDeIndividuos; i++){
-			genotipo[0] = generarValorQ(20);
-			genotipo[1] = Math.random();
-			genotipo[2] = Math.random();
-			genotipo[3] = Math.random();
-			poblacion.add(new Individuo(game, genotipo[0], genotipo[1], genotipo[2], genotipo[3]));		
+			double value = generarValorQ(20);
+			double eps = Math.random();
+			double alpha = Math.random();
+			double gamma = Math.random();
+			poblacion.add(new Individuo(value, eps, alpha, gamma));		
 		}
 		inicializarPoblacion();
 		//for(int i = 0; i < poblacion.size(); i++)
@@ -43,7 +41,7 @@ public class GeneticAlgorithm {
 	
 	private void inicializarPoblacion(){
 		for(int i = 0; i < numeroDeIndividuos; i++)
-			poblacion.get(i).setAfinidad(entrenar(new StarterPacMan(), new MyGhosts(poblacion.get(i).getQ()), 1000));
+			poblacion.get(i).setAfinidad(entrenar(new StarterPacMan(), new MyGhosts(poblacion.get(i).getQ()), 100));
 		Collections.sort(poblacion);
 		for(int i = 0; i < numeroDeIndividuos; i++)
 			System.out.println(poblacion.get(i).toString() + poblacion.get(i).getAfinidad());
@@ -51,9 +49,35 @@ public class GeneticAlgorithm {
 	
 	public void generarDescendencia(){
 		ArrayList<Individuo>descendientes = new ArrayList<Individuo>();
+		// Sacamos 5 descendientes a través del cruce aritmético
+		cruceAritmetico(descendientes);
+		for(int i = 0; i < descendientes.size(); i++)
+			System.out.println(descendientes.get(i).toString() + descendientes.get(i).getAfinidad());
+	}
+	
+	private void cruceAritmetico(ArrayList<Individuo> descendientes){
+		// Por cada dos se combinan
+		for(int i = 0; i < numeroDeIndividuos/3; i++){
+			calcularCruceAritmetico(descendientes, poblacion.get(0),poblacion.get(1),0.4);
+			poblacion.remove(0);
+			poblacion.remove(0);
+		}
 		
 	}
 	
+	private void calcularCruceAritmetico(ArrayList<Individuo>descendientes, Individuo progenitor, Individuo progenitor1, double r){
+		double [] genesProgenitor = progenitor.getGenotipo();
+		double [] genesProgenitor1 = progenitor1.getGenotipo();
+		// Primer desdenciente
+		double []genes = new double[4];
+		double []genes1 = new double[4];
+		for(int i = 0; i < 4; i++){
+			genes[i] = r * genesProgenitor[i] + (1 - r) * genesProgenitor1[i];
+			genes1[i] = r * genesProgenitor1[i] + (1 - r) * genesProgenitor[i];
+		}
+		descendientes.add(new Individuo(genes[0], genes[1], genes[2], genes[3]));
+		descendientes.add(new Individuo(genes1[0], genes1[1], genes1[2], genes1[3]));
+	}
 	
 	private int generarValorQ(int max){
 		int random = (int) (Math.random() * max);
