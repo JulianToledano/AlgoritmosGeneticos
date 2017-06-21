@@ -52,11 +52,13 @@ public class GeneticAlgorithm {
 		mutacion(descendientes);
 		// Sacamos 5 descendientes a través del cruce aritmético
 		cruceAritmetico(descendientes);
-		poblacion.clear();	
-		for(int i = 0; i < descendientes.size(); i++)
-			System.out.println(descendientes.get(i).toString() + descendientes.get(i).getAfinidad());	
-		poblacion = descendientes;
+		poblacion.clear();		
+		poblacion = new ArrayList<>(descendientes);
+		
 		descendientes.clear();
+		/*for(int i = 0; i < descendientes.size(); i++)
+			System.out.println(descendientes.get(i).toString() + descendientes.get(i).getAfinidad());*/
+		inicializarPoblacion();
 	}
 	
 	private void cruceAritmetico(ArrayList<Individuo> descendientes){
