@@ -10,6 +10,7 @@ import java.util.Random;
 import pacman.controllers.Controller;
 import pacman.controllers.examples.StarterPacMan;
 import pacman.entries.ghosts.MyGhosts;
+import pacman.entries.ghosts.Qlearning;
 import pacman.game.Game;
 import pacman.game.Constants.GHOST;
 import pacman.game.Constants.MOVE;
@@ -106,6 +107,12 @@ public class GeneticAlgorithm {
 		return random;
 	}
 	
+	public double obtenerAfinidadAlpha(){
+		return (poblacion.get(0).getAfinidad());
+	}
+	public Qlearning obtenerAlpha(){
+		return (poblacion.get(0).getQ());
+	}
 
 	public double entrenar(Controller<MOVE> pacManController,Controller<EnumMap<GHOST,MOVE>> ghostController,int trials)
 	    {

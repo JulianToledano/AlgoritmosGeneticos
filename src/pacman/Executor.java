@@ -51,7 +51,26 @@ public class Executor
 		Executor exec=new Executor();
 		
 		Game ng = new Game(0);
+		System.out.println("Creando la primera generación.");
 		GeneticAlgorithm ag = new GeneticAlgorithm(ng, 10);
+	
+		
+	/*	for(int i = 0; i < 10; i++){
+			System.out.println("----------------------------------------------------------------------");
+			System.out.println("Creando la generación número: " + i);
+			ag.generarDescendencia();		
+		}*/
+		int contador = 1;
+		double mejor = ag.obtenerAfinidadAlpha();
+		while(ag.obtenerAfinidadAlpha() > 5000){
+			System.out.println("----------------------------------------------------------------------");
+			System.out.println("Creando la generación número: " + contador);
+			System.out.println("Mejor individuo hasta el momento: " + mejor);
+			ag.generarDescendencia();
+			if(ag.obtenerAfinidadAlpha() < mejor)
+				mejor = ag.obtenerAfinidadAlpha();
+			contador++;
+		}
 		//Qlearning q = new Qlearning(ng, 10, 0.1, 0.2, 0.8);		
 		
 		//exec.entrenar(new StarterPacMan(), new StarterGhosts(), 10000);
