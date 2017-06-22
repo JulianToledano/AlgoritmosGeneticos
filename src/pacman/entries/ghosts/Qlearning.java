@@ -88,9 +88,8 @@ public class Qlearning {
 								StateAction as = new StateAction(moves[x], value);
 								movValue.add(as);
 							}
-
-							Q.put(s, movValue);
 						}
+						Q.put(s, movValue);
 					}
 				}
 			}
