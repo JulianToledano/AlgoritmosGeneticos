@@ -14,8 +14,6 @@ public class Individuo implements Comparable<Individuo>{
 		genotipo[1] = eps;
 		genotipo[2] = alpha;
 		genotipo[3] = gamma;
-	//	Game game = new Game(0);
-	//	this.q = new Qlearning(game, genotipo[0], genotipo[1], genotipo[2], genotipo[3]);
 		this.afinidad = 0.0;
 	}
 	
@@ -26,7 +24,7 @@ public class Individuo implements Comparable<Individuo>{
 	public double getAfinidad(){return afinidad;}
 	public void setAfinidad(double afinidad){this.afinidad = afinidad;}
 	public double[] getGenotipo(){return genotipo;}
-	public String toString(){return "inicializado Q a " + genotipo[0] + "; Epsilod: " + genotipo[1] + "\t\t\t; alpha:" + genotipo[2] + "\t\t; gamma:" + genotipo[3] + ";\t\t";}
+	public String toString(){return "inicializado Q a " + genotipo[0] + "; Epsilon: " + genotipo[1] + "; alpha:" + genotipo[2] + "; gamma:" + genotipo[3] + ";";}
 
 	@Override
 	public int compareTo(Individuo individuo) {
