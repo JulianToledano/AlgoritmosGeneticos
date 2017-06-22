@@ -50,20 +50,13 @@ public class Executor
 	public static void main(String[] args)
 	{
 		Executor exec=new Executor();
-		
 		System.out.println("Creando la primera generación.");
 		GeneticAlgorithm ag = new GeneticAlgorithm(20);
-	
 		
-	/*	for(int i = 0; i < 10; i++){
-			System.out.println("----------------------------------------------------------------------");
-			System.out.println("Creando la generación número: " + i);
-			ag.generarDescendencia();		
-		}*/
 		int contador = 1;
 		double []genMejor = new double[4];
 		double mejor = ag.obtenerAfinidadAlpha();
-		while(ag.obtenerAfinidadAlpha() > 5000 && contador <= 100){
+		while(ag.obtenerAfinidadAlpha() > 5000 && contador <= 50){
 			System.out.println("----------------------------------------------------------------------");
 			System.out.println("Creando la generación número: " + contador);
 			System.out.println("Mejor individuo hasta el momento: " + mejor);
@@ -75,14 +68,19 @@ public class Executor
 			contador++;
 		}
 		
-		Game gm = new Game(0);
-		Qlearning q = new Qlearning(gm, genMejor[0], genMejor[1], genMejor[2], genMejor[3]);
+		System.out.println(genMejor[0] + ";" + genMejor[1] +";" + genMejor[2] +";" + genMejor[3]);
+		Game game = new Game(0);
+		Qlearning q = new Qlearning(game, genMejor[0], genMejor[1],genMejor[2], genMejor[3]);
+		exec.entrenar(new StarterPacMan(), new MyGhosts(q), 10000);
 		exec.entrenar(new StarterPacMan(), new MyGhosts(q), 1000);
-		exec.entrenar(new StarterPacMan(), new MyGhosts(q), 100);
-		//Qlearning q = new Qlearning(ng, 10, 0.1, 0.2, 0.8);		
+		//Game game = new Game(0);
+		//Qlearning q = new Qlearning(game,10,0.1,0.2,0.8);
+		//exec.entrenar(new StarterPacMan(), new MyGhosts(q), 10000);
+	//	exec.entrenar(new StarterPacMan(), new MyGhosts(q), 1000);
+	//
+	//	exec.entrenar(new StarterPacMan(), new MyGhosts(q), 10000);
+	//	exec.entrenar(new StarterPacMan(), new MyGhosts(q), 1000);
 		
-		//exec.entrenar(new StarterPacMan(), new StarterGhosts(), 10000);
-		//exec.entrenar(new StarterPacMan(), new StarterGhosts(), 1000);
 	//	exec.jugar(new StarterPacMan(), new StarterGhosts(), true, 1000);
 	//	exec.jugar(new StarterPacMan(), new MyGhosts(q), true, 10);
 		//exec.jugar(new NearestPillPacMan(), new StarterGhosts(), visual, 0.1, 0.2, 0.8, 1000);
@@ -121,7 +119,6 @@ public class Executor
 			}
 			
 			System.out.println(avgScore/trials);
-
 	    }
 	  /**
 	   * COPIA DE runGameTimed
