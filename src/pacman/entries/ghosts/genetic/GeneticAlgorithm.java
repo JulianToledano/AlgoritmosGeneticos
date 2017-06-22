@@ -2,6 +2,9 @@ package pacman.entries.ghosts.genetic;
 
 import static pacman.game.Constants.DELAY;
 
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumMap;
@@ -20,41 +23,54 @@ public class GeneticAlgorithm {
 	private ArrayList <Individuo> poblacion;
 	private int numeroDeIndividuos;
 	
-	public GeneticAlgorithm(Game game, int numeroDeIndividuos){
+	public GeneticAlgorithm(int numeroDeIndividuos){
 		this.poblacion = new ArrayList<Individuo>();
 		this.numeroDeIndividuos = numeroDeIndividuos;
-		crearPoblacion(numeroDeIndividuos);
+		crearPoblacion(numeroDeIndividuos, poblacion);
+		inicializarPoblacion();
 	}
 	
 	
-	private void crearPoblacion(int numeroDeIndividuos){
+	private void crearPoblacion(int numeroDeIndividuos, ArrayList <Individuo> poblacion){
 		for(int i = 0; i < numeroDeIndividuos; i++){
 			double value = generarValorQ(20);
-			double eps = Math.random();
+			double eps = Math.random() * 0.5;
 			double alpha = Math.random();
 			double gamma = Math.random();
 			poblacion.add(new Individuo(value, eps, alpha, gamma));		
 		}
-		inicializarPoblacion();
-		//for(int i = 0; i < poblacion.size(); i++)
-			//System.out.println(poblacion.get(i).getAfinidad());
+		//inicializarPoblacion();
 	}
 	
 	private void inicializarPoblacion(){
 		for(int i = 0; i < numeroDeIndividuos; i++){
+			//poblacion.get(i).setAfinidad(entrenar(new StarterPacMan(), new MyGhosts(poblacion.get(i).getQ()), 100));
+			//double valor = entrenar(new StarterPacMan(), new MyGhosts(poblacion.get(i).getQ()), 100);
 			poblacion.get(i).setAfinidad(entrenar(new StarterPacMan(), new MyGhosts(poblacion.get(i).getQ()), 100));
-			//poblacion.get(i).setAfinidad(entrenar(new StarterPacMan(), new MyGhosts(poblacion.get(i).getQ()), 10));
 		}
 		Collections.sort(poblacion);
-		for(int i = 0; i < numeroDeIndividuos; i++)
-			System.out.println(poblacion.get(i).toString() + poblacion.get(i).getAfinidad());
+		try{
+		    PrintWriter writer = new PrintWriter(new FileWriter("resultados", true));
+			writer.println("------------------------------------------------------------------------------------------------------------------");
+		    for(int i = 0; i < numeroDeIndividuos; i++){
+				System.out.println(poblacion.get(i).toString() + poblacion.get(i).getAfinidad());
+				writer.println(poblacion.get(i).toString() + poblacion.get(i).getAfinidad());
+		    }
+		    writer.close();
+		} catch (IOException e) {
+		   // do something
+		}
+		
 	}
 	
 	public void generarDescendencia(){
 		ArrayList<Individuo>descendientes = new ArrayList<Individuo>();
-		mutacion(descendientes);
-		// Sacamos 5 descendientes a través del cruce aritmético
-		cruceAritmetico(descendientes);
+		conservarAlpha(descendientes);
+		mutacion(descendientes, 5);
+		crearPoblacion(5, descendientes);
+		// Sacamos 6 descendientes a través del cruce aritmético
+		//cruceAritmetico(descendientes);
+		crucePlano(descendientes, 9);
 		poblacion.clear();		
 		poblacion = new ArrayList<>(descendientes);
 		
@@ -62,6 +78,29 @@ public class GeneticAlgorithm {
 		/*for(int i = 0; i < descendientes.size(); i++)
 			System.out.println(descendientes.get(i).toString() + descendientes.get(i).getAfinidad());*/
 		inicializarPoblacion();
+	}
+	
+	private void conservarAlpha(ArrayList<Individuo>descendientes){
+		double[] genesAlpha = poblacion.get(0).getGenotipo();
+		//poblacion.remove(0);
+		descendientes.add(new Individuo(genesAlpha[0],genesAlpha[1],genesAlpha[2],genesAlpha[3]));
+	}
+	
+	private void crucePlano(ArrayList<Individuo> descendientes, int numCruces){
+		double [] genesAlpha = poblacion.get(0).getGenotipo();
+		for(int j = 0; j < numCruces; j++){
+			int random = (int) (Math.random() * (numeroDeIndividuos-1) + 1);
+			double [] genesRandom = poblacion.get(random).getGenotipo();
+			//poblacion.remove(random);
+			double[] genesDescendiente = new double[4];
+			for(int i = 0; i < 4; i++){
+				if(genesAlpha[i] > genesRandom[i])
+					genesDescendiente[i] = genesRandom[i] + Math.random() * (genesAlpha[i] - genesRandom[i]);
+				else
+					genesDescendiente[i] = genesAlpha[i] + Math.random() * (genesRandom[i] - genesAlpha[i]);
+			}
+			descendientes.add(new Individuo(genesDescendiente[0], genesDescendiente[1], genesDescendiente[2], genesDescendiente[3]));
+		}
 	}
 	
 	private void cruceAritmetico(ArrayList<Individuo> descendientes){
@@ -88,18 +127,17 @@ public class GeneticAlgorithm {
 		descendientes.add(new Individuo(genes1[0], genes1[1], genes1[2], genes1[3]));
 	}
 	
-	private void mutacion(ArrayList<Individuo>descendientes){
-		for(int i = 0; i < 2; i++){
-			
-			int random = (int) (Math.random() * numeroDeIndividuos);
+	private void mutacion(ArrayList<Individuo>descendientes, int numMutaciones){	
+		for(int i = 0; i < numMutaciones; i++){
+			int random = (int) (Math.random() * poblacion.size());
 			double [] genotipo = poblacion.get(random).getGenotipo();
 			int genomaACambiar = (int) (Math.random() * 4);
-			System.out.println("Dentro de la mutacion numero: " + i + " individuo a cambiar: " + random + " gen a cambiar: " + genomaACambiar);
+			System.out.println("Dentro de la mutacion. Individuo a cambiar: " + random + ". Gen a cambiar: " + genomaACambiar);
 			if(genomaACambiar == 0)
 				genotipo[0] = generarValorQ(20);
 			else
 				genotipo[genomaACambiar] = Math.random();
-			descendientes.add(new Individuo(genotipo[0],genotipo[1],genotipo[2],genotipo[3]));
+			descendientes.add(new Individuo(genotipo[0],genotipo[1],genotipo[2],genotipo[3]));	
 		}
 	}
 	
@@ -114,6 +152,9 @@ public class GeneticAlgorithm {
 	}
 	public Qlearning obtenerAlpha(){
 		return (poblacion.get(0).getQ());
+	}
+	public double[] obternerGenotipoAlpha(){
+		return poblacion.get(0).getGenotipo();
 	}
 
 	public double entrenar(Controller<MOVE> pacManController,Controller<EnumMap<GHOST,MOVE>> ghostController,int trials)

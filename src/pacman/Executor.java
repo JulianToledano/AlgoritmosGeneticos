@@ -3,6 +3,7 @@ package pacman;
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
@@ -50,9 +51,8 @@ public class Executor
 	{
 		Executor exec=new Executor();
 		
-		Game ng = new Game(0);
 		System.out.println("Creando la primera generación.");
-		GeneticAlgorithm ag = new GeneticAlgorithm(ng, 10);
+		GeneticAlgorithm ag = new GeneticAlgorithm(20);
 	
 		
 	/*	for(int i = 0; i < 10; i++){
@@ -61,16 +61,24 @@ public class Executor
 			ag.generarDescendencia();		
 		}*/
 		int contador = 1;
+		double []genMejor = new double[4];
 		double mejor = ag.obtenerAfinidadAlpha();
-		while(ag.obtenerAfinidadAlpha() > 5000){
+		while(ag.obtenerAfinidadAlpha() > 5000 && contador <= 100){
 			System.out.println("----------------------------------------------------------------------");
 			System.out.println("Creando la generación número: " + contador);
 			System.out.println("Mejor individuo hasta el momento: " + mejor);
 			ag.generarDescendencia();
-			if(ag.obtenerAfinidadAlpha() < mejor)
+			if(ag.obtenerAfinidadAlpha() < mejor){
+				genMejor = ag.obternerGenotipoAlpha();
 				mejor = ag.obtenerAfinidadAlpha();
+			}
 			contador++;
 		}
+		
+		Game gm = new Game(0);
+		Qlearning q = new Qlearning(gm, genMejor[0], genMejor[1], genMejor[2], genMejor[3]);
+		exec.entrenar(new StarterPacMan(), new MyGhosts(q), 1000);
+		exec.entrenar(new StarterPacMan(), new MyGhosts(q), 100);
 		//Qlearning q = new Qlearning(ng, 10, 0.1, 0.2, 0.8);		
 		
 		//exec.entrenar(new StarterPacMan(), new StarterGhosts(), 10000);
@@ -109,7 +117,7 @@ public class Executor
 				}
 				
 				avgScore+=game.getScore();
-				System.out.println(i+"\t"+game.getScore());
+				//System.out.println(i+"\t"+game.getScore());
 			}
 			
 			System.out.println(avgScore/trials);

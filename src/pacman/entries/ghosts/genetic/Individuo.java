@@ -4,7 +4,7 @@ import pacman.entries.ghosts.Qlearning;
 import pacman.game.Game;
 
 public class Individuo implements Comparable<Individuo>{
-	private Qlearning q;
+//	private Qlearning q;
 	private double [] genotipo;
 	private Double afinidad;
 	
@@ -14,12 +14,15 @@ public class Individuo implements Comparable<Individuo>{
 		genotipo[1] = eps;
 		genotipo[2] = alpha;
 		genotipo[3] = gamma;
-		Game game = new Game(0);
-		this.q = new Qlearning(game, genotipo[0], genotipo[1], genotipo[2], genotipo[3]);
+	//	Game game = new Game(0);
+	//	this.q = new Qlearning(game, genotipo[0], genotipo[1], genotipo[2], genotipo[3]);
 		this.afinidad = 0.0;
 	}
 	
-	public Qlearning getQ(){return q;}
+	public Qlearning getQ(){
+		Game game = new Game(0);
+		return new Qlearning(game, genotipo[0], genotipo[1], genotipo[2], genotipo[3]);
+	}
 	public double getAfinidad(){return afinidad;}
 	public void setAfinidad(double afinidad){this.afinidad = afinidad;}
 	public double[] getGenotipo(){return genotipo;}
