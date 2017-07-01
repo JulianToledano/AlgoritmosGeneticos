@@ -20,6 +20,7 @@ import pacman.game.Constants.MOVE;
 
 // Crear la primera generación 
 public class GeneticAlgorithm {
+	
 	private ArrayList <Individuo> poblacion;
 	private int numeroDeIndividuos;
 	/**
@@ -40,8 +41,7 @@ public class GeneticAlgorithm {
 	 */
 	private void crearPoblacion(ArrayList <Individuo> poblacion, int numeroDeIndividuos){
 		for(int i = 0; i < numeroDeIndividuos; i++){
-			//double value = generarValorQ(20);
-			double value = Math.random() * 21;
+			double value = generarValorQ(20);
 			double eps = Math.random() * 0.5;
 			double alpha = Math.random();
 			double gamma = Math.random();
@@ -54,31 +54,13 @@ public class GeneticAlgorithm {
 	 * como la media de esas 100 partidas
 	 */
 	public void inicializarPoblacion(){
-		Game game = new Game(0);
 		// Por cada inidividuo dentro de poblacion
-		for(int i = 0; i < poblacion.size(); i++){
-			// Se obtiene su genotipo
-			double[]gen = poblacion.get(i).getGenotipo();
-			// Se crea un Qlearning con esos valores
-			Qlearning q = new Qlearning(game, gen[0],gen[1],gen[2],gen[3]);
-			// La media de 100 partidas es guardada como el fitness
-			poblacion.get(i).setAfinidad(entrenar(new StarterPacMan(), new MyGhosts(q), 100));
-		}
+		for(int i = 0; i < poblacion.size(); i++)
+			poblacion.get(i).setAfinidad();		
 		// Se ordena la población según su fitness
 		Collections.sort(poblacion);
-		try{
-		    PrintWriter writer = new PrintWriter(new FileWriter("resultados", true));
-			writer.println("------------------------------------------------------------------------------------------------------------------");
-		    for(int i = 0; i < numeroDeIndividuos; i++){
-				System.out.println(poblacion.get(i).toString() + poblacion.get(i).getAfinidad());
-				writer.println(poblacion.get(i).toString() + poblacion.get(i).getAfinidad());
-		    }
-		    writer.close();
-		} catch (IOException e) {
-		   System.out.println(e);
-		}
-		
 	}
+	
 	/*
 	 * Genera la descendencia a partir de la población
 	 */
@@ -86,16 +68,22 @@ public class GeneticAlgorithm {
 		ArrayList<Individuo>descendientes = new ArrayList<Individuo>();
 		// El mejor individuo pasa a la siguiente generación
 		conservarAlpha(descendientes);
-		// Se muta a cinco individuos de forma aleatoria
-		mutacion(descendientes, 5);
-		// Se crean otros cinco individuos de forma aleatoria
-		crearPoblacion(descendientes,5);
 		// Se cruzan dos progenitores hasta obtener 9 descendientes
-		crucePlano(descendientes, 9);
+		crucePlano(descendientes, 17);
+		// Se crean otros dos individuos de forma aleatoria
+		crearPoblacion(descendientes,2);
+		// Se muta a cinco individuos de forma aleatoria
+		//mutacion(descendientes, 5);
+		mutacion(descendientes);
+		
+		
+		
 		poblacion.clear();		
 		poblacion = new ArrayList<>(descendientes);		
 		descendientes.clear();
 		inicializarPoblacion();
+		for(int i = 0; i < poblacion.size(); i++)
+			System.out.println(poblacion.get(i).toString());
 	}
 	/**
 	 * Guarda el individuo con mejor fitness para la siguiente generación
@@ -131,18 +119,21 @@ public class GeneticAlgorithm {
 		}
 	}
 	/**
-	 * Elige un progenitor por sorteo dentro de un conjunto de 7 individuos 
+	 * Elige un progenitor por sorteo dentro de un conjunto de 5 individuos 
 	 * de la población elegidos por sorteo.
 	 * @return genotipo del progenitor
 	 */
 	private double[] torneo(){
-		int mejor = 10000;
-		for(int i = 0; i < 7; i++){
+		double mejor = 10000;
+		int individuo = -1;
+		for(int i = 0; i < 5; i++){
 			int random = (int) (Math.random() * poblacion.size());
-			if(poblacion.get(random).getAfinidad() < mejor)
-				mejor = random;
+			if(poblacion.get(random).getAfinidad() < mejor) {
+				mejor = poblacion.get(random).getAfinidad();
+				individuo = random;
+			}
 		}
-		 return poblacion.get(mejor).getGenotipo();
+		 return poblacion.get(individuo).getGenotipo();
 	}
 	
 	/**
@@ -150,7 +141,7 @@ public class GeneticAlgorithm {
 	 * @param descendientes arraylist donde se guardan los descendientes
 	 * @param numMutaciones número total de individuos dentro de población que se quieren mutar
 	 */
-	private void mutacion(ArrayList<Individuo>descendientes, int numMutaciones){	
+	/*private void mutacion(ArrayList<Individuo>descendientes, int numMutaciones){	
 		for(int i = 0; i < numMutaciones; i++){
 			int random = (int) (Math.random() * poblacion.size());
 			double [] genotipo = poblacion.get(random).getGenotipo();
@@ -161,6 +152,22 @@ public class GeneticAlgorithm {
 			else
 				genotipo[genomaACambiar] = Math.random();
 			descendientes.add(new Individuo(genotipo[0],genotipo[1],genotipo[2],genotipo[3]));	
+		}
+	}*/
+	private void mutacion(ArrayList<Individuo>descendientes){	
+		for(int i = 0; i < descendientes.size(); i++){
+			double p = Math.random();
+			// Si se da el caso en el que se debe mutar
+			if(p < 0.01) {
+				double [] genotipo = poblacion.get(i).getGenotipo();
+				int genomaACambiar = (int) (Math.random() * 4);
+				System.out.println("Dentro de la mutacion. Individuo a cambiar: " + i + ". Gen a cambiar: " + genomaACambiar);
+				if(genomaACambiar == 0)
+					genotipo[0] = generarValorQ(20);
+				else
+					genotipo[genomaACambiar] = Math.random();
+				descendientes.get(i).setGenotipo(genotipo);
+			}
 		}
 	}
 	/**
@@ -180,39 +187,4 @@ public class GeneticAlgorithm {
 	public double[] obternerGenotipoAlpha(){return poblacion.get(0).getGenotipo();}
 	
 	public int getNumeroIndividuos(){return poblacion.size();}
-	
-	/**
-	 * COPIA  de la clase executor
-	 * @param pacManController
-	 * @param ghostController
-	 * @param trials
-	 * @return
-	 */
-	public double entrenar(Controller<MOVE> pacManController,Controller<EnumMap<GHOST,MOVE>> ghostController,int trials)
-	    {
-	    	double avgScore=0;
-	    	
-	    	Random rnd=new Random(0);
-			Game game;
-
-			for(int i=0;i<trials;i++)
-			{
-				game=new Game(rnd.nextLong());
-				
-				while(game.getMazeIndex() == 0 && !game.gameOver())
-				{
-			        game.advanceGame(pacManController.getMove(game.copy(),System.currentTimeMillis()+DELAY),
-			        		ghostController.getMove(game.copy(),System.currentTimeMillis()+DELAY));
-				}
-				
-				avgScore+=game.getScore();
-				//System.out.println(i+"\t"+game.getScore());
-			}
-			
-			//System.out.println(avgScore/trials);
-			return avgScore/trials;
-
-	    }
-
-
 }
